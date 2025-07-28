@@ -110,4 +110,8 @@ Thumbs.db
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp
+
+# Cookies and session files
+cookies.txt
+*.cookies 
