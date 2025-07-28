@@ -1,0 +1,90 @@
+services:
+  # Redis for Celery and Channels
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # MySQL database
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: numberplay
+      MYSQL_USER: numberplay
+      MYSQL_PASSWORD: numberplay123
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+
+  # Django Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=mysql://numberplay:numberplay123@mysql:3306/numberplay
+      - REDIS_URL=redis://redis:6379/0
+      - DJANGO_SECRET_KEY=your-secret-key-change-this-in-production
+      - DJANGO_DEBUG=True
+      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_static:/app/staticfiles
+    depends_on:
+      - mysql
+      - redis
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             daphne -b 0.0.0.0 -p 8000 numberplay.asgi:application"
+
+  # Celery Worker
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=mysql://numberplay:numberplay123@mysql:3306/numberplay
+      - REDIS_URL=redis://redis:6379/0
+      - DJANGO_SECRET_KEY=your-secret-key-change-this-in-production
+      - DJANGO_DEBUG=True
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - mysql
+      - redis
+    restart: unless-stopped
+    command: celery -A numberplay worker --loglevel=info
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    restart: unless-stopped
+    command: npm run dev
+
+volumes:
+  redis_data:
+  mysql_data:
+  backend_static: 
