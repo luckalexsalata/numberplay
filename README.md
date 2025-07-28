@@ -4,6 +4,16 @@ A Django app with user authentication and real-time game interaction via WebSock
 
 ---
 
+## Screenshots
+
+### Registration Page
+![Registration Page](docs/images/registration.png)
+
+### Game Interface
+![Game Interface](docs/images/game.png)
+
+---
+
 ## Features
 
 - User registration and login (JWT)
