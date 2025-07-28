@@ -76,5 +76,41 @@ sudo docker-compose exec backend python manage.py createsuperuser
 
 ---
 
+## Scaling & Production
+
+### Task Queues
+- **Celery + Redis**: Background email sending, data processing
+- **Horizontal scaling**: Multiple Celery workers
+- **Task monitoring**: Flower dashboard for queue management
+- **Retry mechanisms**: Failed task handling with exponential backoff
+
+### Caching Strategy
+- **Redis caching**: Game history, user statistics
+- **Database query optimization**: Indexed fields for fast lookups
+- **Session storage**: Redis-based session management
+- **CDN integration**: Static file delivery for frontend
+
+### Security Features
+- **JWT authentication**: Secure token-based auth with refresh
+- **Rate limiting**: API endpoints protected against abuse
+- **Input validation**: Comprehensive data sanitization
+- **CORS configuration**: Cross-origin request handling
+- **SQL injection protection**: Django ORM safeguards
+- **XSS protection**: Built-in Django security headers
+
+### Performance Optimization
+- **Database indexing**: Optimized queries for game results
+- **Connection pooling**: Efficient database connections
+- **Load balancing**: Nginx for multiple backend instances
+- **Monitoring**: Health checks and performance metrics
+
+### Deployment Options
+- **Docker containers**: Easy deployment and scaling
+- **Kubernetes**: For large-scale orchestration
+- **Cloud platforms**: AWS, GCP, Azure ready
+- **CI/CD**: Automated testing and deployment
+
+---
+
 - Python 3.10+, Django 4.x, DRF, Channels, Celery, Redis, MySQL/SQLite, Daphne, Docker
 - All configs are set by default. No manual setup needed. 
